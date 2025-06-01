@@ -4,6 +4,20 @@ All notable changes to `laravel-all-in-one-command` will be documented in this f
 
 ## [Unreleased]
 
+## [1.0.2] - 2024-06-01
+
+### Fixed
+- Fixed "Undefined array key 'unit'" error in test generation
+- Improved test type selection with clearer single-choice options
+- Enhanced array handling for test types in generateTests method
+- Added proper error handling for test generation failures
+- Fixed displaySummary method to handle test types safely
+
+### Changed
+- Replaced problematic multiple choice selection with single choice for test types
+- Test type options now: "Unit", "Feature", "Both (Unit and Feature)"
+- Improved user experience with more intuitive test selection
+
 ## [1.0.1] - 2024-06-01
 
 ### Added
