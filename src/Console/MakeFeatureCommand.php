@@ -151,13 +151,25 @@ class MakeFeatureCommand extends Command
 
         // Tests
         if ($this->featureDetails['tests'] = $this->confirm('Generate Tests?', true)) {
-            $this->featureDetails['test_types'] = $this->choice(
-                '  > Test types (Unit,Feature)',
-                ['Unit', 'Feature', 'Unit,Feature'],
-                'Unit,Feature',
-                null,
-                true // allow multiple choices
+            $testChoice = $this->choice(
+                '  > Test types',
+                ['Unit', 'Feature', 'Both (Unit and Feature)'],
+                'Both (Unit and Feature)'
             );
+
+            // Convert choice to array format
+            switch ($testChoice) {
+                case 'Unit':
+                    $this->featureDetails['test_types'] = ['Unit'];
+                    break;
+                case 'Feature':
+                    $this->featureDetails['test_types'] = ['Feature'];
+                    break;
+                case 'Both (Unit and Feature)':
+                default:
+                    $this->featureDetails['test_types'] = ['Unit', 'Feature'];
+                    break;
+            }
         } else {
             $this->featureDetails['test_types'] = [];
         }
@@ -245,7 +257,21 @@ class MakeFeatureCommand extends Command
             $this->line("- Will attempt to add API resource routes for 'api/{$apiPath}' to routes/api.php (Controller: {$fullControllerClass})");
         }
         if ($this->featureDetails['tests'] && !empty($this->featureDetails['test_types'])) {
-            $testTypes = is_array($this->featureDetails['test_types']) ? $this->featureDetails['test_types'] : explode(',', $this->featureDetails['test_types']);
+            // Ensure test_types is properly handled
+            $testTypes = [];
+            if (isset($this->featureDetails['test_types'])) {
+                if (is_array($this->featureDetails['test_types'])) {
+                    $testTypes = $this->featureDetails['test_types'];
+                } elseif (is_string($this->featureDetails['test_types'])) {
+                    $testTypes = explode(',', $this->featureDetails['test_types']);
+                }
+            }
+
+            // Clean up test types
+            $testTypes = array_map(function($type) {
+                return trim(ucfirst(strtolower($type)));
+            }, $testTypes);
+
             if (in_array('Unit', $testTypes)) {
                 $this->line("- tests/Unit/{$name}Test.php");
             }
@@ -930,23 +956,47 @@ class MakeFeatureCommand extends Command
 
     protected function generateTests($name)
     {
-        $testTypes = is_array($this->featureDetails['test_types']) ? $this->featureDetails['test_types'] : explode(',', $this->featureDetails['test_types']);
+        // Ensure test_types is always an array
+        $testTypes = [];
+        if (isset($this->featureDetails['test_types'])) {
+            if (is_array($this->featureDetails['test_types'])) {
+                $testTypes = $this->featureDetails['test_types'];
+            } elseif (is_string($this->featureDetails['test_types'])) {
+                $testTypes = explode(',', $this->featureDetails['test_types']);
+            }
+        }
+
+        // Clean up test types (remove whitespace and ensure proper casing)
+        $testTypes = array_map(function($type) {
+            return trim(ucfirst(strtolower($type)));
+        }, $testTypes);
+
         $studlyName = Str::studly($name);
 
         if (in_array('Unit', $testTypes)) {
             $this->line("Generating Unit Test: tests/Unit/{$studlyName}Test.php");
-            $this->call('make:test', [
-                'name' => "Unit\\{$studlyName}Test",
-                '--unit' => true,
-            ]);
+            try {
+                $this->call('make:test', [
+                    'name' => "Unit\\{$studlyName}Test",
+                    '--unit' => true,
+                ]);
+                $this->info("Unit test created successfully.");
+            } catch (\Exception $e) {
+                $this->error("Failed to create unit test: " . $e->getMessage());
+            }
         }
 
         if (in_array('Feature', $testTypes)) {
             $this->line("Generating Feature Test: tests/Feature/{$studlyName}Test.php");
-            $this->call('make:test', [
-                'name' => "Feature\\{$studlyName}Test",
-                // For feature tests, --unit is not needed. It's the default if not --unit.
-            ]);
+            try {
+                $this->call('make:test', [
+                    'name' => "Feature\\{$studlyName}Test",
+                    // For feature tests, --unit is not needed. It's the default if not --unit.
+                ]);
+                $this->info("Feature test created successfully.");
+            } catch (\Exception $e) {
+                $this->error("Failed to create feature test: " . $e->getMessage());
+            }
         }
     }
 
