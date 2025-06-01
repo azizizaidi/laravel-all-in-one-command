@@ -110,7 +110,7 @@ The package works out of the box with sensible defaults, but you can customize:
 ## Requirements
 
 - PHP 8.1 or higher
-- Laravel 10.0 or 11.0
+- Laravel 10.0, 11.0, or 12.0
 
 ## Testing
 

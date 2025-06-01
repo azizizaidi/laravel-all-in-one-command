@@ -4,6 +4,18 @@ All notable changes to `laravel-all-in-one-command` will be documented in this f
 
 ## [Unreleased]
 
+## [1.0.1] - 2024-06-01
+
+### Added
+- Support for Laravel 12.0
+- Updated PHPUnit to support version 11.0
+- Updated Orchestra Testbench to support version 10.0
+
+### Changed
+- Extended Laravel compatibility to include version 12.0
+
+## [1.0.0] - 2024-06-01
+
 ### Added
 - Initial release of Laravel All-in-One Command package
 - Interactive `make:feature` command for generating complete CRUD functionality
@@ -36,5 +48,5 @@ All notable changes to `laravel-all-in-one-command` will be documented in this f
 
 ### Requirements
 - PHP 8.1 or higher
-- Laravel 10.0 or 11.0
+- Laravel 10.0, 11.0, or 12.0
 - Illuminate packages: console, support, filesystem
